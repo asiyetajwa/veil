@@ -6,7 +6,7 @@ import { patternSpans } from './patterns.js';
 import { buildMasks, redact, segments, counts, fillIn, locate, categoryLabel } from './masks.js';
 import { gate, outcome } from './policy.js';
 import { sign, verify, sha256, receiptId } from './receipt.js';
-import { SEEDS, parseSeed } from './seeds.js';
+import { SEEDS, SAMPLES, parseSeed } from './seeds.js';
 import { score, combine } from './canary.js';
 import * as ai from './ai.js';
 
@@ -49,7 +49,7 @@ function onInput() {
 }
 raw.addEventListener('input', onInput);
 document.querySelectorAll('[data-sample]').forEach((b) => b.addEventListener('click', () => {
-  const seed = SEEDS.find((s) => s.id === b.dataset.sample);
+  const seed = [...SAMPLES, ...SEEDS].find((s) => s.id === b.dataset.sample);
   if (!seed) return;
   raw.value = parseSeed(seed.text).text;
   onInput();

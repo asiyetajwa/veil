@@ -54,6 +54,26 @@ She mentioned she is on medication for {{HEALTH:epilepsy}} and needs written ins
   },
 ];
 
+/**
+ * Plain samples for trying the flow. Not canary documents: nothing here is high-sensitivity, so the policy gate
+ * opens and the cloud brief can run. Invented people and companies.
+ */
+export const SAMPLES = [
+  {
+    id: 'sync',
+    title: 'Project sync',
+    text: `Project sync, Tuesday
+
+Lena Marsh: Thanks for joining. The Harbourline launch moves to 3 December, the venue in Lisbon cannot do November.
+Omar Haddad: That works for us. Studio Pell quoted €18,000 for the launch film, down from €21,500.
+Lena Marsh: Good. Accept it, and send the signed quote to lena.marsh@corvid-studio.example by Friday.
+Ines Duarte: I will book the crew. Their producer is Paulo Reis, on +351 913 555 204.
+Omar Haddad: One open question: do we still want the Porto screening the week after?
+Lena Marsh: Yes, if the budget holds. Ines, can you check the hall by Thursday?
+Decision: launch on 3 December in Lisbon; Studio Pell makes the film.`,
+  },
+];
+
 /** Strips the markup: returns the clean text and the planted items with exact offsets. */
 export function parseSeed(marked) {
   const planted = [];
