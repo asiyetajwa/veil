@@ -81,8 +81,8 @@ const DETECTORS = [
   (t) => collect(t, /(?:[$£€¥₦₹]|\b(?:USD|GBP|EUR|KES|NGN|ZAR|CAD|AUD)\s?)\d[\d,]*(?:\.\d{1,2})?(?:\s?(?:k|m|bn|million|billion)\b)?|\b\d[\d,]*(?:\.\d{1,2})?\s?(?:dollars|pounds|euros|shillings)\b/gi, 'MONEY',
     (m) => ({ start: m.index, end: trimEnd(t, m.index, m.index + m[0].length) })),
 
-  // Health details: a phrase after a clinical cue, up to the end of the clause.
-  (t) => collect(t, /\b(?:diagnosed with|diagnosis of|prescribed|on medication for|being treated for|treatment for|recovering from|suffers from|has been off with|off sick with)\s+([^.,;\n]{3,60})/gi, 'HEALTH',
+  // Health details: a phrase after a clinical cue, up to the end of the clause or the next joining word.
+  (t) => collect(t, /\b(?:diagnosed with|diagnosis of|prescribed|on medication for|being treated for|treatment for|recovering from|suffers from|has been off with|off sick with)\s+([^.,;\n]{3,60}?)(?=\s+(?:and|so|but|which|who|since|until)\b|[.,;\n]|$)/gi, 'HEALTH',
     (m) => { const v = m[1] ?? ''; const s = m.index + m[0].lastIndexOf(v); return { start: s, end: trimEnd(t, s, s + v.length) }; }),
 ];
 

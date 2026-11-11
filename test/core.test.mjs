@@ -33,6 +33,11 @@ test('secrets: the value after a credential word is masked, not the word', () =>
   assert.ok(found.includes('SECRET:4471'));
 });
 
+test('a health mask stops at the joining word, not the end of the sentence', () => {
+  assert.ok(cats('She is on medication for epilepsy and needs written instructions, not calls.').includes('HEALTH:epilepsy'));
+  assert.ok(cats('He was diagnosed with type 2 diabetes last year.').includes('HEALTH:type 2 diabetes last year'));
+});
+
 test('the same entity gets the same label everywhere; labels count per category', () => {
   const text = 'Call Ana on +351 912 345 678. Ana again: +351 912 345 678. Or +44 20 7946 0321.';
   const spans = [...patternSpans(text), ...locate(text, 'Ana').map((s) => ({ ...s, category: 'NAME', source: 'model' }))];

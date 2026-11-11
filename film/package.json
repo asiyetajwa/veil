@@ -1,0 +1,9 @@
+{
+  "name": "@veil/film",
+  "private": true,
+  "type": "module",
+  "description": "The Veil film (Remotion): an illustrated walkthrough that runs the app's own masking code",
+  "scripts": { "studio": "remotion studio src/index.ts", "voiceover": "node scripts/voiceover.mjs veil", "render": "node scripts/render.mjs Veil" },
+  "dependencies": { "@remotion/cli": "4.0.536", "react": "19.1.1", "react-dom": "19.1.1", "remotion": "4.0.536" },
+  "devDependencies": { "@types/react": "19.1.12", "typescript": "5.9.2" }
+}

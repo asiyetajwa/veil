@@ -1,0 +1,48 @@
+{
+  "voiceId": "nPczCjzI2devNBz1zQrb",
+  "modelId": "eleven_multilingual_v2",
+  "music": "music/veil-bed.mp3",
+  "musicStart": 0,
+  "clips": [
+    {
+      "id": "hook",
+      "file": "voiceover/veil/hook.mp3",
+      "seconds": 7.88898
+    },
+    {
+      "id": "title",
+      "file": "voiceover/veil/title.mp3",
+      "seconds": 4.780408
+    },
+    {
+      "id": "masks",
+      "file": "voiceover/veil/masks.mp3",
+      "seconds": 16.979592
+    },
+    {
+      "id": "gate",
+      "file": "voiceover/veil/gate.mp3",
+      "seconds": 13.792653
+    },
+    {
+      "id": "cloud",
+      "file": "voiceover/veil/cloud.mp3",
+      "seconds": 16.013061
+    },
+    {
+      "id": "canary",
+      "file": "voiceover/veil/canary.mp3",
+      "seconds": 14.497959
+    },
+    {
+      "id": "receipt",
+      "file": "voiceover/veil/receipt.mp3",
+      "seconds": 12.721633
+    },
+    {
+      "id": "close",
+      "file": "voiceover/veil/close.mp3",
+      "seconds": 5.590204
+    }
+  ]
+}
