@@ -103,6 +103,7 @@ $('#prepare').addEventListener('click', async () => {
   state.layers = { pattern: { ran: 'on this device, in code' }, model: null };
   state.pass = null;
   state.override = false;
+  state.namesUnmaskedSent = false;
   rebuild();
   setStep(2);
   await runModelLayer();
@@ -278,19 +279,33 @@ function renderGate() {
   const connected = ai.configured();
   $('#gate-dial').classList.toggle('open', !g.blocked);
   const offline = connected ? '' : '<p>The model passes are not connected in this build, so nothing can be sent. You can still sign a receipt for the masking.</p>';
+  // Without the model layer, names, places and organisations are still raw. Say so here, offer the name search on
+  // the already-masked text first, and make sending without it an explicit, recorded choice.
+  const namesMasked = state.layers.model?.state === 'ran';
+  const names = connected && !namesMasked
+    ? `<p class="warn"><i class="dot"></i>Names, places and organisations are not masked yet: the model layer did not run in this browser. Look for them on the masked text first, or send knowing the cloud will see them. Either choice is recorded on the receipt.</p>`
+    : '';
+  const findFirst = connected && !namesMasked ? '<button class="pill pill-ink" id="find-first" type="button"><i class="dot"></i>Find Names on the Masked Text First</button>' : '';
+  const sendLabel = namesMasked || !connected ? null : 'Without Name Masking';
   if (!g.blocked) {
     $('#gate-copy').innerHTML = `<h3>Clear to send the abstract.</h3>
-      <p>Every mask here is a standard category. The cloud receives ${abstract.length.toLocaleString()} characters of masked text and never the original.</p>${offline}
-      <div class="row"><button class="pill pill-ink" id="send" type="button" ${connected ? '' : 'disabled'}><i class="dot"></i>Send the Abstract to the Cloud</button><button class="pill pill-ghost" id="skip" type="button"><i class="dot"></i>Sign Without Sending</button></div>`;
+      <p>Every mask here is a standard category. The cloud receives ${abstract.length.toLocaleString()} characters of masked text and never the original.</p>${names}${offline}
+      <div class="row">${findFirst}<button class="pill ${findFirst ? 'pill-ghost' : 'pill-ink'}" id="send" type="button" ${connected ? '' : 'disabled'}><i class="dot"></i>${sendLabel ? `Send ${sendLabel}` : 'Send the Abstract to the Cloud'}</button><button class="pill pill-ghost" id="skip" type="button"><i class="dot"></i>Sign Without Sending</button></div>`;
   } else {
     const tags = g.high.map((c) => `<span class="tag"><i class="dot"></i>${esc(categoryLabel(c))}</span>`).join('');
     $('#gate-copy').innerHTML = `<h3>The cloud pass is blocked by default.</h3>
       <p>${tags}</p>
-      <p>This text holds high-sensitivity items. Veil can write a rougher summary on this device instead, from the masked text, with nothing sent. Or you can send the masked abstract anyway: every mask stays in place, and the override is recorded on the receipt.</p>${offline}
-      <div class="row"><button class="pill pill-ink" id="local" type="button" ${connected ? '' : 'disabled'}><i class="dot"></i>Summarise on This Device</button><button class="pill pill-ghost" id="send" type="button" ${connected ? '' : 'disabled'}><i class="dot"></i>Send the Abstract Anyway</button><button class="pill pill-ghost" id="skip" type="button"><i class="dot"></i>Sign Without Sending</button></div>`;
+      <p>This text holds high-sensitivity items. Veil can write a rougher summary on this device instead, from the masked text, with nothing sent. Or you can send the masked abstract anyway: every mask stays in place, and the override is recorded on the receipt.</p>${names}${offline}
+      <div class="row"><button class="pill pill-ink" id="local" type="button" ${connected && state.layers.model?.state !== 'unavailable' ? '' : 'disabled'} title="${state.layers.model?.state === 'unavailable' ? 'This browser has no on-device model.' : ''}"><i class="dot"></i>Summarise on This Device</button>${findFirst.replace('pill-ink', 'pill-ghost')}<button class="pill pill-ghost" id="send" type="button" ${connected ? '' : 'disabled'}><i class="dot"></i>Send Anyway${sendLabel ? `, ${sendLabel}` : ''}</button><button class="pill pill-ghost" id="skip" type="button"><i class="dot"></i>Sign Without Sending</button></div>`;
     $('#local')?.addEventListener('click', runDeviceSummary);
   }
-  $('#send')?.addEventListener('click', () => { state.override = g.blocked; void runCloud(); });
+  $('#find-first')?.addEventListener('click', async () => {
+    $('#find-first').disabled = true;
+    await cloudExtract();
+    state.gate = gate(state.masks);
+    renderGate();
+  });
+  $('#send')?.addEventListener('click', () => { state.override = g.blocked; state.namesUnmaskedSent = !namesMasked; void runCloud(); });
   $('#skip').addEventListener('click', () => { void signAndWipe(); });
 }
 
@@ -385,7 +400,7 @@ async function signAndWipe() {
     masks: Object.fromEntries(Object.entries(c).map(([k, v]) => [k, v.entities])),
     maskOccurrences: state.masks.length,
     userEdits: state.edits,
-    sensitivity: { highCategories: g.high, outcome: outcome({ blocked: g.blocked, override: state.override, cloudUsed, deviceSummary }) },
+    sensitivity: { highCategories: g.high, outcome: outcome({ blocked: g.blocked, override: state.override, cloudUsed, deviceSummary }), namesMasked: m?.state === 'ran', sentWithoutNameMasking: cloudUsed && Boolean(state.namesUnmaskedSent) },
     passes: [
       { pass: 'pattern layer', ranOn: 'this device, in code' },
       { pass: 'model layer', source: m?.state === 'ran' ? m.source : m?.state ?? 'not run', input: m?.state === 'ran' ? m.input : 'none' },
@@ -425,7 +440,7 @@ function renderReceipt() {
   const rows = [
     ['Receipt', b.id], ['Issued', b.issuedAt.replace('T', ' ').replace(/\.\d+Z$/, ' UTC')],
     ['Masked', masks], ['Sensitivity', b.sensitivity.outcome + (b.sensitivity.highCategories.length ? ` (${b.sensitivity.highCategories.map(categoryLabel).join(', ')})` : '')],
-    ['Sent to the cloud', b.abstractSent ? `${b.characters.sent.toLocaleString()} characters of masked text` : 'nothing'],
+    ['Sent to the cloud', b.abstractSent ? `${b.characters.sent.toLocaleString()} characters of masked text${b.sensitivity.sentWithoutNameMasking ? ', without name masking (chosen at the gate)' : ''}` : 'nothing'],
     ['Abstract SHA-256', `<code>${b.abstractSha256}</code>`], ['Passes', passes],
     ['Public key', `<code>${b.publicKey}</code>`], ['Signature', `<code>${state.receipt.signature.slice(0, 44)}…</code>`],
   ];
@@ -501,9 +516,10 @@ $('#canary-run').addEventListener('click', async () => {
         modelRan = false;
         modelNote = e instanceof ai.Unavailable ? 'Pattern layer only: this browser has no on-device model, and canary mode never uses the cloud.' : `Pattern layer only: the model layer stopped (${String(e?.message ?? e)}).`;
       }
-    } else {
+    } else if (!ai.configured()) {
       modelNote = 'Pattern layer only: the model passes are not connected in this build.';
     }
+    // Otherwise the model layer already stopped on an earlier document, and modelNote says why.
     const sc = score(planted, buildMasks(text, spans));
     scores.push({ seed: s, ...sc });
     done[s.id] = sc;
