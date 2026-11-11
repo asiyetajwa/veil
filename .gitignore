@@ -1,0 +1,6 @@
+node_modules
+PLAN.md
+veil-build-spec.md
+.firebase
+*.log
+.firebaserc

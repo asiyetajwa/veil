@@ -1,0 +1,163 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Veil · Redaction-First Notes</title>
+<meta name="description" content="Your notes, redacted on your device before any cloud sees them. A signed receipt proves what was masked and what was sent.">
+<link rel="icon" type="image/svg+xml" href="favicon.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@300;400;500;600&display=swap">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <!-- The liquid bridge between circles: blur, then a hard alpha threshold, so shapes fuse where they meet. -->
+    <filter id="goo"><feGaussianBlur in="SourceGraphic" stdDeviation="9" result="b"/><feColorMatrix in="b" mode="matrix" values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 26 -12" result="g"/><feComposite in="SourceGraphic" in2="g" operator="atop"/></filter>
+  </defs>
+</svg>
+
+<header class="top">
+  <a class="wordmark" href="#" aria-label="Veil home">VEIL</a>
+  <div class="micro"><span>Redaction-first notes</span><span>On your device (V.1)</span></div>
+  <button class="pill pill-ghost" id="canary-open" type="button"><i class="dot"></i>Run the Canary Test</button>
+</header>
+
+<main>
+  <!-- Hero -->
+  <section class="hero stadium">
+    <div class="hero-lens" aria-hidden="true">
+      <div class="lens-text">
+        <p>Dana: the <b>Northwind</b> renewal is still open, they want $48,500.</p>
+        <p>Call Marcus on +44 20 7946 0321 before Friday.</p>
+        <p>Priya is out this week, so Will covers the rota.</p>
+        <p>Card 4539 1488 0343 6467 was charged twice.</p>
+      </div>
+      <div class="lens lens-veil"></div>
+      <div class="donut"><i></i></div>
+    </div>
+    <div class="hero-copy">
+      <div class="micro"><span>Veil</span><span>Redaction-first notes (01)</span></div>
+      <h1>Your notes, redacted on your device before any cloud sees them.</h1>
+      <p class="lede">Paste notes, a transcript or an email thread. Veil masks names, numbers and secrets on this device, sends only the masked abstract to the cloud for the finished brief, and ends every run with a signed receipt.</p>
+    </div>
+  </section>
+
+  <div class="flow">
+    <!-- Step rail: grey circles that fuse into the active step. -->
+    <nav class="rail" aria-label="Steps">
+      <div class="rail-goo"><span class="rail-track"></span><span class="rail-node" data-step="1"></span><span class="rail-node" data-step="2"></span><span class="rail-node" data-step="3"></span><span class="rail-node" data-step="4"></span><span class="rail-node" data-step="5"></span><span class="rail-blob" id="rail-blob"></span></div>
+      <ol class="rail-labels">
+        <li data-step="1"><span>Intake</span><span>Step (01)</span></li>
+        <li data-step="2"><span>On your device</span><span>Step (02)</span></li>
+        <li data-step="3"><span>Policy gate</span><span>Step (03)</span></li>
+        <li data-step="4"><span>In the cloud</span><span>Step (04)</span></li>
+        <li data-step="5"><span>Receipt and wipe</span><span>Step (05)</span></li>
+      </ol>
+    </nav>
+
+    <div class="steps">
+      <!-- 1. Intake -->
+      <section class="panel" id="step-1" data-step="1">
+        <div class="panel-head">
+          <div class="micro"><span>Intake</span><span>Paste or drop (01)</span></div>
+          <span class="count" id="char-count">0 characters</span>
+        </div>
+        <div class="intake">
+          <textarea id="raw" spellcheck="false" placeholder="Paste notes, a meeting transcript or an email thread."></textarea>
+          <label class="drop" id="drop">
+            <input type="file" id="file" accept=".txt,.md,.eml,text/plain,text/markdown,message/rfc822" hidden>
+            <span class="drop-lens"><i class="dot"></i></span>
+            <span class="drop-copy">Drop a .txt, .md or .eml file<small>Files are read as text in this page. Nothing is opened, run or fetched.</small></span>
+          </label>
+        </div>
+        <div class="panel-foot">
+          <div class="samples"><span class="micro-inline">Try a sample</span><button type="button" class="chip" data-sample="meeting">Meeting</button><button type="button" class="chip" data-sample="email">Email thread</button><button type="button" class="chip" data-sample="ticket">Support ticket</button></div>
+          <button class="pill pill-ink" id="prepare" type="button" disabled><i class="dot"></i>Prepare for the Cloud</button>
+        </div>
+      </section>
+
+      <!-- 2. On-device pass -->
+      <section class="panel" id="step-2" data-step="2" hidden>
+        <div class="panel-head">
+          <div class="micro"><span>On your device</span><span>Two layers (02)</span></div>
+          <span class="status-local" id="local-status"><i class="dot"></i>Nothing has left this device.</span>
+        </div>
+        <div class="device">
+          <div class="doc" id="doc" aria-label="Your text with masks"></div>
+          <aside class="tally">
+            <div class="rings" id="rings"></div>
+            <ul class="layers" id="layers"></ul>
+            <div class="fallback" id="fallback" hidden></div>
+          </aside>
+        </div>
+        <p class="hint">Tap a mask to see the original here, on this device, and to unmask it if you choose. Select any text to add a mask.</p>
+        <div class="maskbar" id="maskbar" hidden></div>
+        <div class="panel-foot"><span></span><button class="pill pill-ink" id="to-gate" type="button"><i class="dot"></i>Check the Policy Gate</button></div>
+      </section>
+
+      <!-- 3. Policy gate -->
+      <section class="panel" id="step-3" data-step="3" hidden>
+        <div class="panel-head"><div class="micro"><span>Policy gate</span><span>Sensitivity tiers (03)</span></div></div>
+        <div class="gate">
+          <div class="gate-dial" id="gate-dial"><div class="donut big"><i></i></div></div>
+          <div class="gate-copy" id="gate-copy"></div>
+        </div>
+      </section>
+
+      <!-- 4. Cloud pass -->
+      <section class="panel night" id="step-4" data-step="4" hidden>
+        <div class="panel-head"><div class="micro"><span>In the cloud</span><span>Abstract only (04)</span></div><span class="count" id="cloud-source"></span></div>
+        <details class="received" id="received">
+          <summary><i class="dot"></i>What the cloud received <span id="received-size"></span></summary>
+          <pre id="payload"></pre>
+          <p class="note">This is the whole request text. The response format (summary, decisions, actions, draft) is sent as a schema with no content of yours in it.</p>
+        </details>
+        <div class="brief" id="brief"></div>
+        <div class="panel-foot"><label class="toggle"><input type="checkbox" id="fill"><span class="track"><span class="knob"></span></span>Show originals here, on this device</label><button class="pill pill-light" id="to-receipt" type="button"><i class="dot"></i>Sign the Receipt and Wipe</button></div>
+      </section>
+
+      <!-- 5. Receipt and wipe -->
+      <section class="panel" id="step-5" data-step="5" hidden>
+        <div class="panel-head"><div class="micro"><span>Receipt</span><span>Ed25519 (05)</span></div><span class="count" id="receipt-id"></span></div>
+        <div class="receipt">
+          <div class="seal"><div class="donut"><i></i></div><span id="seal-state">Signed</span></div>
+          <dl class="fields" id="fields"></dl>
+        </div>
+        <p class="wiped" id="wiped">The raw text no longer exists here.</p>
+        <div class="panel-foot">
+          <div class="verify-out" id="verify-out"></div>
+          <div class="row"><button class="pill pill-ghost" id="download" type="button"><i class="dot"></i>Download Receipt</button><button class="pill pill-ink" id="verify" type="button"><i class="dot"></i>Verify Here</button><button class="pill pill-ghost" id="restart" type="button"><i class="dot"></i>New Note</button></div>
+        </div>
+        <details class="check-other"><summary>Check another receipt</summary><textarea id="other" spellcheck="false" placeholder="Paste a Veil receipt (JSON)."></textarea><button class="pill pill-ghost" id="verify-other" type="button"><i class="dot"></i>Verify This Receipt</button><div class="verify-out" id="other-out"></div></details>
+      </section>
+    </div>
+  </div>
+
+  <!-- Canary mode -->
+  <section class="canary night" id="canary" hidden>
+    <div class="canary-head">
+      <div class="micro"><span>Canary test</span><span>Planted items (C.3)</span></div>
+      <button class="pill pill-light" id="canary-run" type="button"><i class="dot"></i>Run It Live</button>
+    </div>
+    <p class="canary-lede">Three seeded documents with planted names, emails, phone numbers, account numbers, a credential and health details. The on-device pass runs on them now, in this browser, and every miss is listed.</p>
+    <div class="canary-lenses" id="canary-lenses"></div>
+    <div class="canary-score" id="canary-score" hidden>
+      <div class="rate"><span id="rate">0</span><small>% caught</small></div>
+      <div class="rate-meta" id="rate-meta"></div>
+      <div class="bars" id="bars"></div>
+      <div class="misses" id="misses"></div>
+    </div>
+  </section>
+</main>
+
+<footer class="foot">
+  <div class="micro"><span>Veil</span><span>Redacted on your device. Reasoned in the cloud. Proven on the receipt.</span></div>
+  <p>Redaction here is a filter with limits, not a guarantee: it finds shapes and the names the model recognises, and canary mode shows what it misses. Veil reads pasted or dropped text only. It does not open attachments, run files or fetch links.</p>
+</footer>
+
+<script type="module" src="js/app.js"></script>
+</body>
+</html>

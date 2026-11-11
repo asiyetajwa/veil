@@ -1,0 +1,7 @@
+{
+  "hosting": {
+    "public": "public",
+    "ignore": ["**/.*"],
+    "headers": [{ "source": "**", "headers": [{ "key": "Referrer-Policy", "value": "no-referrer" }] }]
+  }
+}
