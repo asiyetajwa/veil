@@ -1,0 +1,31 @@
+<!doctype html>
+<html><head><meta charset="utf-8">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@200;300;400;500&display=swap">
+<style>
+  body { margin: 0; background: #0b0b0c; font-family: 'Inter Tight', sans-serif; }
+  #t { position: relative; width: 1280px; height: 720px; background: #f1f2f4; overflow: hidden; color: #0f1012; }
+  .stadium { position: absolute; left: 50px; right: 50px; top: 60px; bottom: 60px; border-radius: 999px; background: radial-gradient(120% 140% at 20% 30%, #eef1f4 0%, #dde3e9 70%); overflow: hidden; }
+  .word { position: absolute; left: 110px; top: 70px; font-size: 230px; font-weight: 200; letter-spacing: -13px; line-height: .9; }
+  .line { position: absolute; left: 122px; top: 300px; width: 560px; font-size: 48px; font-weight: 300; letter-spacing: -1.6px; line-height: 1.08; }
+  .notes { position: absolute; left: 690px; top: 130px; width: 430px; overflow: hidden; font-size: 21px; line-height: 2.1; color: #2b3138; white-space: nowrap; }
+  .pill { display: inline-flex; align-items: center; gap: 6px; padding: 1px 10px 1px 8px; border-radius: 999px; background: #7e93a6; color: #fff; font-size: 13px; font-weight: 600; letter-spacing: .6px; vertical-align: 3px; }
+  .pill i { width: 7px; height: 7px; border-radius: 50%; background: #fff; }
+  .pill.g { background: #a1a4a9; } .pill.h { background: #2a1d17; }
+  .lens { position: absolute; left: 880px; top: 196px; width: 210px; height: 210px; border-radius: 50%; backdrop-filter: blur(9px) saturate(.9); background: radial-gradient(circle at 40% 35%, rgba(255,255,255,.6), rgba(201,211,220,.4) 70%); box-shadow: inset 0 0 0 1.5px rgba(255,255,255,.75), 0 40px 70px -40px rgba(40,55,70,.45); }
+  .donut { position: absolute; left: 720px; top: 360px; width: 150px; height: 150px; border-radius: 50%; border: 30px solid #2a1d17; box-sizing: border-box; -webkit-mask: conic-gradient(from 250deg, transparent 0 9%, #000 9%); }
+  .dot { position: absolute; left: 790px; top: 430px; width: 10px; height: 10px; border-radius: 50%; background: #0f1012; }
+  .micro { position: absolute; left: 124px; bottom: 62px; font-size: 20px; line-height: 1.35; }
+  .micro span { display: block; } .micro span:first-child { color: #94989f; }
+</style></head>
+<body><div id="t"><div class="stadium">
+  <div class="notes">
+    <div><span class="pill"><i></i>NAME 1</span>: the <span class="pill"><i></i>ORG 1</span> launch moves</div>
+    <div>Send the quote to <span class="pill g"><i></i>EMAIL 1</span> by Friday</div>
+    <div>Call Paulo Reis on +351 913 555 204</div>
+    <div>Card <span class="pill h"><i></i>ACCOUNT 1</span> was charged twice</div>
+  </div>
+  <div class="lens"></div><div class="donut"></div><div class="dot"></div>
+  <div class="word">VEIL</div>
+  <div class="line">Redacted on your device before any cloud sees it.</div>
+  <div class="micro"><span>Redaction-first notes</span><span>Built on Firebase AI Logic</span></div>
+</div></div></body></html>
