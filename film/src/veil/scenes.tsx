@@ -6,6 +6,18 @@ import { CANARY } from './canary-result';
 import { label, NOTE, NOTE_ABSTRACT, NOTE_COUNTS, NOTE_MASKS, PLANTED_TOTAL, SEED_INFO, segs, TICKET, TICKET_GATE, TICKET_MASKS, fill, type Mask } from './data';
 import { Captions, cue, Donut, Dot, Fade, Goo, Lens, MaskPill, Micro, nightPanel, panel, Pop, Roll, Stage } from './kit';
 
+/** The technologies in play for a scene, named in the top right. */
+const Tech: React.FC<{ items: string[]; dark?: boolean; at?: number }> = ({ items, dark = false, at = 10 }) => (
+  <div style={{ position: 'absolute', right: 110, top: 62, display: 'flex', gap: 10 }}>
+    {items.map((x, i) => (
+      <Fade key={x} from={at + i * 6}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '9px 18px 9px 14px', borderRadius: 999, fontSize: 19, fontWeight: 500,
+          background: dark ? theme.night2 : 'rgba(15,16,18,.06)', color: dark ? theme.nightInk : theme.ink }}><Dot size={8} color={theme.pond} />{x}</div>
+      </Fade>
+    ))}
+  </div>
+);
+
 const HIGH = new Set(['ACCOUNT', 'SECRET', 'HEALTH']);
 const CAT: Record<string, string> = { NAME: 'Names', ORG: 'Organisations', PLACE: 'Places', MONEY: 'Amounts', EMAIL: 'Emails', PHONE: 'Phones', ACCOUNT: 'Account', SECRET: 'Secret', HEALTH: 'Health' };
 const tone = (m: Mask): 'pattern' | 'model' | 'high' => (HIGH.has(m.category) ? 'high' : m.source === 'model' ? 'model' : 'pattern');
@@ -63,6 +75,7 @@ export const TitleScene: React.FC<{ duration: number }> = () => {
         <Donut size={210} style={{ position: 'absolute', right: 190, bottom: 110, color: theme.ink }} turn={interpolate(frame, [0, 120], [-40, 0], { ...clamp, easing: easeOut })} />
       </div>
       <Micro a="Veil" b="Redaction-first notes (01)" style={{ position: 'absolute', left: 120, top: 70 }} />
+      <Tech items={['Firebase AI Logic']} at={cue('title', 'Firebase', 0, 1.6)} />
       <Captions scene="title" />
     </Stage>
   );
@@ -103,7 +116,8 @@ const Rings: React.FC<{ at: number; modelAt: number }> = ({ at, modelAt }) => {
 
 export const MasksScene: React.FC<{ duration: number }> = () => {
   const pat = cue('masks', 'Patterns', 0, 5.2);
-  const mod = cue('masks', 'model', 0, 9.6);
+  const mod = cue('masks', 'names', 0, 13);
+  const fb = cue('masks', 'Firebase', 0, 9.6);
   const left = cue('masks', 'nothing', 0, 14.6);
   let pi = 0;
   let mi = 0;
@@ -121,9 +135,10 @@ export const MasksScene: React.FC<{ duration: number }> = () => {
       <div style={{ position: 'absolute', right: 90, top: 150 }}><Rings at={pat + 4} modelAt={mod + 6} /></div>
       <div style={{ position: 'absolute', right: 110, top: 700, width: 480, display: 'flex', flexDirection: 'column', gap: 16, fontSize: 22 }}>
         <Fade from={pat}><div style={{ display: 'flex', gap: 14, alignItems: 'center' }}><Dot size={14} color={theme.steel} />Pattern layer, in code</div></Fade>
-        <Fade from={mod}><div style={{ display: 'flex', gap: 14, alignItems: 'center' }}><Dot size={14} color={theme.pond} />Model layer, on-device model</div></Fade>
+        <Fade from={fb}><div style={{ display: 'flex', gap: 14, alignItems: 'center' }}><Dot size={14} color={theme.pond} />Model layer, the on-device model in Chrome</div></Fade>
         <Fade from={left}><div style={{ display: 'flex', gap: 14, alignItems: 'center', color: theme.ok, fontWeight: 500 }}><Dot size={14} color={theme.ok} />Nothing has left this device.</div></Fade>
       </div>
+      <Tech items={['Firebase AI Logic', 'On-device inference']} at={fb} />
       <Captions scene="masks" />
     </Stage>
   );
@@ -189,7 +204,7 @@ const Labelled: React.FC<{ text: string; filled: boolean }> = ({ text, filled })
 export const CloudScene: React.FC<{ duration: number }> = () => {
   const frame = useCurrentFrame();
   const panelAt = cue('cloud', 'panel', 0, 4.4);
-  const turns = cue('cloud', 'turns', 0, 8.6);
+  const turns = cue('cloud', 'returns', 0, 13);
   const fills = cue('cloud', 'fills', 0, 13.4);
   const lines = NOTE_ABSTRACT.split('\n');
   const card = (title: string, body: React.ReactNode, at: number) => (
@@ -214,6 +229,7 @@ export const CloudScene: React.FC<{ duration: number }> = () => {
         {card('Action items', BRIEF.actions.map((d, i) => <div key={i}><Labelled text={d} filled={filled} /></div>), turns + 28)}
         <Fade from={fills}><div style={{ display: 'flex', alignItems: 'center', gap: 12, fontSize: 20, color: theme.nightInk2 }}><Dot size={12} color={theme.pond} />Originals filled in here, on this device</div></Fade>
       </div>
+      <Tech dark items={['Firebase AI Logic', 'Cloud inference', 'Firebase App Check']} at={cue('cloud', 'Firebase', 0, 4)} />
       <Captions scene="cloud" dark />
     </Stage>
   );
@@ -224,13 +240,16 @@ export const CanaryScene: React.FC<{ duration: number }> = () => {
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
   const three = cue('canary', 'Three', 0, 4.2);
-  const reports = cue('canary', 'reports', 0, 9.4);
-  const number = cue('canary', 'number', 0, 12.4);
-  const rate = CANARY ? Math.round((CANARY.caught / CANARY.total) * 100) : null;
+  const ran = cue('canary', 'test', 0, 10);
+  const pattern = cue('canary', 'pattern', 0, 15.6);
+  const number = cue('canary', 'twenty', 0, 20.6);
+  const names = cue('canary', 'names', 1, 23.6);
+  const rate = Math.round((CANARY.caught / CANARY.total) * 100);
   return (
     <Stage dark>
       <Goo id="goo-c" blur={16} />
       <Micro dark a="Canary test" b={`${String(PLANTED_TOTAL)} planted items (C.3)`} style={{ position: 'absolute', left: 110, top: 64 }} />
+      <Tech dark items={['Firebase Hosting', 'Desktop Chrome']} at={ran} />
       <Fade from={2} to={three - 14} style={{ position: 'absolute', left: 110, top: 300, width: 1500, fontSize: 110, fontWeight: 300, letterSpacing: -4.5, lineHeight: 1.05 }}>
         <BlurText text="How well does the filter work?" at={4} />
       </Fade>
@@ -244,27 +263,27 @@ export const CanaryScene: React.FC<{ duration: number }> = () => {
       </div>
       <div style={{ position: 'absolute', left: 110, top: 170, width: 840, display: 'flex', alignItems: 'center', height: 330 }}>
         {SEED_INFO.map((s, i) => (
-          <Fade key={i} from={three + i * 8 + 10} style={{ width: i === 1 ? 302 : 252, margin: '0 0', textAlign: 'center', color: theme.ink }}>
-            <div style={{ fontSize: 24, fontWeight: 500 }}>{s.title}</div>
-            <div style={{ fontSize: 19, color: theme.ink2 }}>{String(s.planted)} planted</div>
-          </Fade>
+          <div key={i} style={{ width: i === 1 ? 302 : 252, textAlign: 'center', color: theme.ink }}>
+            <Fade from={three + i * 8 + 10} to={pattern - 10}><div style={{ fontSize: 24, fontWeight: 500 }}>{s.title}</div><div style={{ fontSize: 19, color: theme.ink2 }}>{String(s.planted)} planted</div></Fade>
+            <Fade from={pattern + i * 6} style={{ marginTop: -62 }}>
+              <div style={{ fontSize: 84, fontWeight: 300, letterSpacing: -4, lineHeight: 1 }}><Roll to={CANARY.perDocument[i] ?? 0} at={pattern + i * 6} len={26} /><span style={{ fontSize: 28, letterSpacing: 0, color: theme.ink2 }}>%</span></div>
+              <div style={{ fontSize: 17, color: theme.ink2, marginTop: 4 }}>{s.title}</div>
+            </Fade>
+          </div>
         ))}
       </div>
-      <div style={{ position: 'absolute', left: 110, top: 560, width: 840, fontSize: 24, color: theme.nightInk2, lineHeight: 1.5 }}>
-        <Fade from={reports}>Hard cases planted on purpose: a name that is also a common word, a card number split by spaces, a health detail with no cue word.</Fade>
-        <Fade from={reports + 30} style={{ marginTop: 14, color: theme.nightInk3, fontSize: 20 }}>Redaction is a filter with limits, not a guarantee. Every miss is listed.</Fade>
+      <div style={{ position: 'absolute', left: 110, top: 550, width: 860, fontSize: 24, color: theme.nightInk2, lineHeight: 1.5, display: 'flex', flexDirection: 'column', gap: 12 }}>
+        <Fade from={ran}><span style={{ color: theme.nightInk, fontWeight: 500 }}>A test we actually ran.</span> {CANARY.where}.</Fade>
+        <Fade from={pattern}>Pattern layer: every email, phone number, account number, credential and amount caught.</Fade>
+        <Fade from={names}>The on-device model did not run in this test, so {String(CANARY.missed)} items, mostly names, places and organisations, are listed as missed.</Fade>
+        <Fade from={names + 30} style={{ color: theme.nightInk3, fontSize: 20 }}>Redaction is a filter with limits, not a guarantee. {String(CANARY.extra)} extra masks. Zero raw characters sent during the test.</Fade>
       </div>
-      <div style={{ position: 'absolute', right: 120, top: 150, width: 760, textAlign: 'right' }}>
+      <div style={{ position: 'absolute', right: 120, top: 190, width: 760, textAlign: 'right' }}>
         <Fade from={number - 6}>
-          <div style={{ fontSize: 420, fontWeight: 200, letterSpacing: -24, lineHeight: 0.85 }}>
-            {rate === null ? <span style={{ color: '#3a3b3e' }}>00</span> : <Roll to={rate} at={number} len={40} />}
-            <span style={{ fontSize: 60, letterSpacing: 0, color: theme.nightInk2, marginLeft: 12 }}>%</span>
+          <div style={{ fontSize: 400, fontWeight: 200, letterSpacing: -22, lineHeight: 0.85 }}>
+            <Roll to={rate} at={number} len={36} /><span style={{ fontSize: 60, letterSpacing: 0, color: theme.nightInk2, marginLeft: 12 }}>%</span>
           </div>
-          <div style={{ marginTop: 24, fontSize: 26, color: theme.nightInk2 }}>
-            {CANARY
-              ? <>{String(CANARY.caught)} of {String(CANARY.total)} planted items caught, measured live in Chrome. {String(CANARY.missed.length)} missed, {String(CANARY.extra)} extra.</>
-              : <span style={{ color: theme.bad }}>PENDING: the rate measured in desktop Chrome goes here.</span>}
-          </div>
+          <div style={{ marginTop: 24, fontSize: 26, color: theme.nightInk2 }}>{String(CANARY.caught)} of {String(CANARY.total)} planted items caught, pattern layer only</div>
         </Fade>
       </div>
       <Captions scene="canary" dark />
@@ -278,8 +297,8 @@ const FIELDS: [string, string][] = [
   ['Sensitivity', 'cloud used'],
   ['Sent to the cloud', 'the masked abstract only'],
   ['Abstract SHA-256', '05f50322a00477df4b3146fa448b976d…'],
-  ['Passes', 'pattern layer: this device, in code · model layer: on_device · brief: in_cloud, on masked abstract'],
-  ['Signature', 'Ed25519, signed in this browser'],
+  ['Passes', 'pattern layer: this device, in code · model layer and brief: the source Firebase AI Logic reports for each call'],
+  ['Signature', 'Ed25519, signed in this browser (WebCrypto)'],
 ];
 
 export const ReceiptScene: React.FC<{ duration: number }> = () => {
@@ -312,6 +331,7 @@ export const ReceiptScene: React.FC<{ duration: number }> = () => {
           <Fade from={verify + 10}><div style={{ marginTop: 22, display: 'flex', alignItems: 'center', gap: 12, fontSize: 24, color: theme.ok }}><Dot size={12} color={theme.ok} /><b style={{ fontWeight: 600 }}>Valid.</b> The signature matches every field on this receipt.</div></Fade>
         </div>
       </Pop>
+      <Tech items={['Inference source from Firebase AI Logic', 'WebCrypto Ed25519']} at={cue('receipt', 'Firebase', 0, 8)} />
       <Captions scene="receipt" />
     </Stage>
   );
@@ -324,7 +344,7 @@ export const CloseScene: React.FC<{ duration: number }> = () => {
   return (
     <Stage dark>
       <AbsoluteFill style={{ padding: '150px 150px' }}>
-        <Pop at={2}><div style={{ fontSize: 150, fontWeight: 200, letterSpacing: -8, lineHeight: 0.9, marginBottom: 60 }}>VEIL</div></Pop>
+        <Pop at={2}><div style={{ fontSize: 150, fontWeight: 200, letterSpacing: -8, lineHeight: 0.9, marginBottom: 60, marginTop: 40 }}>VEIL</div></Pop>
         {line('Redacted on your device.', cue('close', 'Redacted', 0, 1.2))}
         {line('Reasoned in the cloud.', cue('close', 'Reasoned', 0, 2.8))}
         {line('Proven on the receipt.', cue('close', 'Proven', 0, 4.2))}
@@ -332,8 +352,9 @@ export const CloseScene: React.FC<{ duration: number }> = () => {
       <Lens size={360} x={1480 + Math.sin(frame / 36) * 24} y={380} dark blur={10} />
       <Donut size={170} tint={theme.steel} style={{ position: 'absolute', right: 190, bottom: 250, color: theme.nightInk }} ring={0.2} />
       <Fade from={cue('close', 'Proven', 0, 4.2) + 30} style={{ position: 'absolute', left: 150, bottom: 150, fontSize: 24, color: theme.nightInk3 }}>
-        An illustrated walkthrough of the app. Try it live at veil-redact.web.app
+        An illustrated walkthrough of the app. The canary result is from a test we ran in desktop Chrome. Try it live at veil-redact.web.app
       </Fade>
+      <Tech dark items={['Firebase AI Logic', 'Firebase App Check', 'Firebase Hosting']} at={cue('close', 'Firebase', 0, 1.6)} />
       <Captions scene="close" dark />
     </Stage>
   );

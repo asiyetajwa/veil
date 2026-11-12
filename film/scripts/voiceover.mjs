@@ -84,7 +84,9 @@ for (const [i, scene] of scenes.entries()) {
     '-v', 'error', '-y', '-i', raw,
     // TRIM=ends keeps every pause inside the line (cutting them made the read sound clipped) and only trims the ends.
     '-af', process.env.TRIM === 'ends'
-      ? 'silenceremove=start_periods=1:start_threshold=-45dB,areverse,silenceremove=start_periods=1:start_threshold=-45dB,areverse,apad=pad_dur=0.05'
+      // Trim at -60 dB and keep 70 ms of the quiet before and after the speech, with a short fade at both ends: a
+      // -45 dB cut sliced the soft start of a first word (the V of "Veil") and clicked at scene joins.
+      ? 'silenceremove=start_periods=1:start_threshold=-60dB:start_silence=0.07,afade=t=in:d=0.02,areverse,silenceremove=start_periods=1:start_threshold=-60dB:start_silence=0.07,afade=t=in:d=0.03,areverse,apad=pad_dur=0.05'
       : `silenceremove=start_periods=1:start_threshold=-45dB:stop_periods=-1:stop_duration=${String(linePause)}:stop_threshold=-45dB:stop_silence=${String(linePause)}`,
     '-c:a', 'libmp3lame', '-b:a', '192k',
     new URL(`${scene.id}.mp3`, outDir).pathname,
